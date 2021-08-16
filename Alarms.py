@@ -29,7 +29,8 @@ class Alarm():
         alarms.append(self.alarm)
         Alarm.instanceList.append(self)
     
-    def activate(self, timestamp):
+    def activate(self):
+        timestamp = getTime()
         self.state = True
         sleep(1)
         if self.pri == "high":
@@ -46,7 +47,7 @@ class Alarm():
 
     def addToList(self, alarmList, timestamp):
         alarmList.append((self.text, self.pri, timestamp))
-        
+
     def removeFromList(self, alarmList):
         if self.alarm in [x[0] for x in alarmList]:
             alarmList.remove(self.alarm)
@@ -88,13 +89,13 @@ while True:
         startup = False
         
     if keyboard.is_pressed('e'):
-        emgStop.activate(getTime())
+        emgStop.activate()
     if keyboard.is_pressed('o'):
-        overSpeed.activate(getTime())
+        overSpeed.activate()
     if keyboard.is_pressed('b'):
-        batteryLow.activate(getTime())
+        batteryLow.activate()
     if keyboard.is_pressed('c'):
-        connectionSucks.activate(getTime())
+        connectionSucks.activate()
     if keyboard.is_pressed('p'):
         Alarm.printAlarm()
 
