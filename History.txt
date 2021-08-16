@@ -1,0 +1,1 @@
+[('Emergency Stop Activated', 'high', '17/08/2021 00:06:38'), ('Emergency Stop Activated', 'high', '17/08/2021 00:06:45'), ('Emergency Stop Activated', 'high', '17/08/2021 00:06:52'), ('Emergency Stop Activated', 'high', '17/08/2021 00:06:56'), ('Emergency Stop Activated', 'high', '17/08/2021 00:06:57')]

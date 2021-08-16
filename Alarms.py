@@ -3,26 +3,12 @@ import keyboard
 from datetime import datetime
 
 '''
-This class can be used to construct alarms with the following properties:
-    Str: Variable name
-    Str: Alarm priority [high/low] (Could consider using integers)
-    Str: Alarm text
-
-The following methods are available outside the class
-    Alarms are stored in alarmListHigh and alarmListLow
-    
-    activate() -> modifies the alarmstate to True and adds alarm to alarm list
-    reset() -> modifies the alarmstate to False and removes alarm from alarm list
-    printAlarm() -> prints the list of alarms (timestamps and more to be added)
-
-Intended usage:
-    For DART: construct alarms and display alarm text, priority and timestamp to Qt UI
-
 TO DO:
-    Historical alarms/retreive alarms after reboot
-    Remove sleep calls (for simulation with keyboard only)
-    ++
-    +
+    Make only one list: alarmList, ditch the high/low stuff
+    Add high/low info to the alarm list tuple entry
+    Sort alarm by time or priority
+    Acknowledge alarm
+    Max numbers of events
 '''
 
 class Alarm():
@@ -59,51 +45,57 @@ class Alarm():
             self.removeFromList(alarmListLow)
 
     def addToList(self, alarmList, timestamp):
-        if len(alarmList) == 0:
-            alarmList.append((self.alarm, timestamp))
-            print("Alarm Activated!")
-        else:
-            if self.alarm in [x[0] for x in alarmList]:
-                print("Alarm already in list")
-            else:
-                alarmList.append((self.alarm, timestamp))
-                print("Alarm Activated!")
-
+        alarmList.append((self.text, self.pri, timestamp))
+        
     def removeFromList(self, alarmList):
-        self.state = False
-        if self.pri == "high":
-            if self.alarm in alarmList:
-                alarmList.remove(self.alarm)
-            else:
-                print("Could not remove alarm!")
+        if self.alarm in [x[0] for x in alarmList]:
+            alarmList.remove(self.alarm)
+        else:
+            print("Could not remove alarm!")
 
-    def printAlarm(self):
+    def printAlarm():
         print("Low: ", alarmListLow)
         print("High: ", alarmListHigh)
+        sleep(1)
 
-trigger1 = False
-trigger2 = False
-trigger3 = False
+def getTime():
+    return datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+def loadHistorical():
+    f = open("History.txt","r")
+    alarmListHigh = f.read()
+    f.close()
+    return alarmListHigh
+
+def saveHistorical(alarmListHigh):
+    f = open("History.txt","w")
+    f.write(str(alarmListHigh))
+    f.close()
 
 # Define Alarm Instances
-emgStop = Alarm("emgStop", "high", "Emg Stop Activated")
+emgStop = Alarm("emgStop", "high", "Emergency Stop Activated")
 overSpeed = Alarm("overSpeed", "high", "Overspeed detected!")
 batteryLow = Alarm("batteryLow", "low", "Battery level low")
 connectionSucks = Alarm("connectionSucks", "low", "Bad connection")
 
+startup = True
+
 # Simualte alarms
 while True:
-    timestamp = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-
+    if startup:
+        alarmListHigh = loadHistorical()
+        alarmListHigh = eval(alarmListHigh)
+        startup = False
+        
     if keyboard.is_pressed('e'):
-        emgStop.activate(timestamp)
+        emgStop.activate(getTime())
     if keyboard.is_pressed('o'):
-        overSpeed.activate(timestamp)
+        overSpeed.activate(getTime())
     if keyboard.is_pressed('b'):
-        batteryLow.activate(timestamp)
+        batteryLow.activate(getTime())
     if keyboard.is_pressed('c'):
-        connectionSucks.activate(timestamp)
-    if keyboard.is_pressed('r'):
-        emgStop.reset()
+        connectionSucks.activate(getTime())
     if keyboard.is_pressed('p'):
-        print(alarmListHigh, "\t", alarmListLow)
+        Alarm.printAlarm()
+
+    saveHistorical(alarmListHigh)
