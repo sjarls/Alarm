@@ -12,40 +12,22 @@ TO DO:
 '''
 
 class Alarm():
-    global alarmListHigh, alarmListLow, alarms
+    global alarms, alarmList
     alarms = []
     instanceList = []
-    alarmListHigh = []
-    alarmListLow = []
+    alarmList = []
 
-    def __init__(self, alarm, pri, text, *triggers):
+    def __init__(self, alarm, pri, text):
         self.alarm = alarm
         self.pri = pri
         self.text = text
         self.state = False
-        self.triggers = []
-        for trigger in triggers:
-            self.triggers.append(trigger)
         alarms.append(self.alarm)
         Alarm.instanceList.append(self)
     
     def activate(self):
-        timestamp = getTime()
+        timestamp = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self.state = True
-        sleep(1)
-        if self.pri == "high":
-            self.addToList(alarmListHigh, timestamp)
-        elif self.pri == "low":
-            self.addToList(alarmListLow, timestamp)
-
-    def reset(self):
-        self.state = False
-        if self.pri == "high":
-            self.removeFromList(alarmListHigh)
-        elif self.pri == "low":
-            self.removeFromList(alarmListLow)
-
-    def addToList(self, alarmList, timestamp):
         alarmList.append((self.text, self.pri, timestamp))
 
     def removeFromList(self, alarmList):
@@ -55,23 +37,19 @@ class Alarm():
             print("Could not remove alarm!")
 
     def printAlarm():
-        print("Low: ", alarmListLow)
-        print("High: ", alarmListHigh)
-        sleep(1)
+        print(alarmList)
+        print("length: ", len(alarmList))
 
-def getTime():
-    return datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    def loadHistorical():
+        f = open("History.txt","r")
+        alarmList = f.read()
+        f.close()
+        return alarmList
 
-def loadHistorical():
-    f = open("History.txt","r")
-    alarmListHigh = f.read()
-    f.close()
-    return alarmListHigh
-
-def saveHistorical(alarmListHigh):
-    f = open("History.txt","w")
-    f.write(str(alarmListHigh))
-    f.close()
+    def saveHistorical(alarmList):
+        f = open("History.txt","w")
+        f.write(str(alarmList))
+        f.close()
 
 # Define Alarm Instances
 emgStop = Alarm("emgStop", "high", "Emergency Stop Activated")
@@ -84,19 +62,24 @@ startup = True
 # Simualte alarms
 while True:
     if startup:
-        alarmListHigh = loadHistorical()
-        alarmListHigh = eval(alarmListHigh)
+        alarmList = Alarm.loadHistorical()
+        alarmList = eval(alarmList)
         startup = False
         
     if keyboard.is_pressed('e'):
         emgStop.activate()
+        sleep(1)
     if keyboard.is_pressed('o'):
         overSpeed.activate()
+        sleep(1)
     if keyboard.is_pressed('b'):
         batteryLow.activate()
+        sleep(1)
     if keyboard.is_pressed('c'):
         connectionSucks.activate()
+        sleep(1)
     if keyboard.is_pressed('p'):
         Alarm.printAlarm()
+        sleep(1)
 
-    saveHistorical(alarmListHigh)
+    Alarm.saveHistorical(alarmList)
