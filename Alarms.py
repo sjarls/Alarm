@@ -36,20 +36,23 @@ class Alarm():
         else:
             print("Could not remove alarm!")
 
-    def printAlarm():
-        print(alarmList)
-        print("length: ", len(alarmList))
-
     def loadHistorical():
         f = open("History.txt","r")
         alarmList = f.read()
         f.close()
         return alarmList
 
-    def saveHistorical(alarmList):
+    def saveHistorical():
         f = open("History.txt","w")
         f.write(str(alarmList))
         f.close()
+    
+    def clearHistorical():
+        alarmList.clear()
+
+    def printAlarm():
+        print(alarmList)
+        print("length: ", len(alarmList))
 
 # Define Alarm Instances
 emgStop = Alarm("emgStop", "high", "Emergency Stop Activated")
@@ -65,7 +68,8 @@ while True:
         alarmList = Alarm.loadHistorical()
         alarmList = eval(alarmList)
         startup = False
-        
+
+    # Test activation of alarm instances
     if keyboard.is_pressed('e'):
         emgStop.activate()
         sleep(1)
@@ -75,11 +79,15 @@ while True:
     if keyboard.is_pressed('b'):
         batteryLow.activate()
         sleep(1)
+        
+    # Clear alarm list
     if keyboard.is_pressed('c'):
-        connectionSucks.activate()
+        Alarm.clearHistorical()
         sleep(1)
+    
+    # Print alarm list
     if keyboard.is_pressed('p'):
         Alarm.printAlarm()
         sleep(1)
 
-    Alarm.saveHistorical(alarmList)
+    Alarm.saveHistorical()
